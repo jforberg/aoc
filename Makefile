@@ -1,7 +1,7 @@
 executables :=
 
-# Day 1 - ???
-executables +=
+# Day 1 - Python
+executables += 1/a.py 1/b.py
 
 results := $(addprefix .results/, $(executables))
 
