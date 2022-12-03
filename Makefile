@@ -6,6 +6,9 @@ executables += 1/a.py 1/b.py
 # Day 2 - Haskell
 executables += 2/a 2/b
 
+# Day 3 - Python
+executables += 3/a.py 3/b.py
+
 results := $(addprefix .results/, $(executables))
 
 # Main rules
