@@ -9,6 +9,9 @@ executables += 2/a 2/b
 # Day 3 - Python
 executables += 3/a.py 3/b.py
 
+# Day 4 - Python
+executables += 4/a.py 4/b.py
+
 results := $(addprefix .results/, $(executables))
 
 # Main rules
