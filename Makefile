@@ -39,6 +39,9 @@ executables += 12/a.py 12/b.py
 # Day 13 - Python
 executables += 13/a.py 13/b.py
 
+# Day 14 - Python
+executables += 14/a.py 14/b.py
+
 results := $(addprefix .results/, $(executables))
 
 # Main rules
