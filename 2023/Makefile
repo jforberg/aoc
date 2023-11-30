@@ -1,5 +1,7 @@
 executables :=
 
+executables := 1/a.py 1/b.py
+
 results := $(addprefix .results/, $(executables))
 
 # Main rules

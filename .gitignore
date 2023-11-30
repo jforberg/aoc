@@ -2,4 +2,4 @@ a
 b
 *.o
 *.hi
-/.results
+.results
