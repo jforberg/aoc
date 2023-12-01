@@ -3,9 +3,16 @@
 import numpy as np
 import sys
 
-e = []
+s = 0
 
-for l in sys.stdin:
-    pass
+for l in open('input.txt'):
+    v = ''
+    for c in l:
+        if c in "0123456789":
+            v += c
 
-print(e)
+    x = int(v[0] + v[-1])
+    s += x
+
+print(s)
+
