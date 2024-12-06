@@ -1,12 +1,10 @@
 #!/usr/bin/python3
 
-import numpy as np
 from collections import defaultdict as ddict
 import sys
 import re
 import itertools
 import copy
-import tqdm
 
 orig_passable = ddict(lambda: True)
 orig_pos = None
@@ -21,7 +19,7 @@ for i, l in enumerate(open('input.txt')):
         orig_passable[(i, j)] = c != '#'
         grid.add((i, j))
 
-def loops(passable):
+def loops(p):
     d = (-1, 0)
     been_dir = set()
     pos = orig_pos
@@ -51,20 +49,18 @@ def loops(passable):
         i2 = i + d[0]
         j2 = j + d[1]
 
-        if not passable[(i2, j2)]:
+        if pos == p or not orig_passable[(i2, j2)]:
             d = rot(d)
             continue
 
         pos = (i2, j2)
 
 s = 0
-for p in tqdm.tqdm(grid):
+for p in grid:
     if not orig_passable[p]:
         continue
 
-    passable = copy.deepcopy(orig_passable)
-    passable[p] = False
-    if loops(passable):
+    if loops(p):
         s += 1
 
 print(s)
