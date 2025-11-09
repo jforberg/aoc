@@ -25,3 +25,5 @@ finalSecret x0 = secrets x0 !! 2000
 initialSecrets = (read :: String -> Word) <$> (lines $ unsafePerformIO $ readFile "input.txt")
 
 solution = sum $ finalSecret <$> initialSecrets
+
+main = print solution
