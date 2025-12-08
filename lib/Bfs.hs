@@ -12,6 +12,7 @@ data Result n = Goal | Adj [n]
     deriving (Show, Eq)
 
 -- | Find the shortest path from 'start' to the goal. The path is returned in reverse order.
+{-# INLINE bfs #-}
 bfs :: Ord n => (n -> Result n) -> n -> [n]
 bfs rule start = search (Map.singleton start start) (Seq.singleton start)
   where

@@ -1,6 +1,6 @@
 -- | Dijkstra's algorithm
 module Dijkstra
-( Node(..)
+( Result(..)
 , dijkstra
 )
 where
@@ -12,32 +12,35 @@ import Data.Map.Strict qualified as Map
 import Data.PQueue.Min qualified as PQ
 import Data.Set qualified as Set
 
-class Ord a => Node a where
-    adjacent :: a -> [(Int, a)]
-    isGoal :: a -> Bool
+data Result a = Goal | Adj [(a, Double)]
+    deriving (Show, Eq)
 
-dijkstra :: Node a => a -> ([a], Int)
-dijkstra start = expand prev0 dist0 goals0 queue0
+{-# INLINE dijkstra #-}
+dijkstra :: Ord a => (a -> Result a) -> a -> ([a], Double)
+dijkstra rule start = expand prev0 dist0 goals0 queue0
   where
     prev0 = Map.singleton start start
     dist0 = Map.singleton start 0
     goals0 = Set.empty
-    queue0 = PQ.singleton (0, start)
+    queue0 = PQ.singleton (start, 0)
 
     expand prev dist goals PQ.Empty = reconstruct prev dist goals
-    expand prev dist goals ((_, n) PQ.:< queue) = expand prev' dist' goals' queue'
+    expand prev dist goals ((n, _) PQ.:< queue) = expand prev' dist' goals' queue'
       where
         (prev', dist', queue') = foldr process (prev, dist, queue) neighbours
-        neighbours = adjacent n
-        distN = dist Map.! n
-        goals' = if isGoal n then n `Set.insert` goals else goals
 
-        process (c, v) (prev, dist, queue) = let
-            prevDist = Map.findWithDefault maxBound v dist
+        (neighbours, goals') = case rule n of
+            Goal -> ([], n `Set.insert` goals)
+            Adj ns -> (ns, goals)
+
+        distN = dist Map.! n
+
+        process (v, c) (prev, dist, queue) = let
+            prevDist = Map.findWithDefault infinity v dist
             thisDist = distN + c
             dist' = Map.insert v thisDist dist
             prev' = Map.insert v n prev
-            queue' = PQ.insert (thisDist, v) queue
+            queue' = PQ.insert (v, thisDist) queue
                 in if thisDist < prevDist then (prev', dist', queue') else (prev, dist, queue)
 
     reconstruct prev dist goals = (path, cost)
@@ -49,3 +52,5 @@ dijkstra start = expand prev0 dist0 goals0 queue0
           | otherwise = let p = prev Map.! n in n : backtrack p
 
         (cost, goal) = minimumOn fst [ (dist Map.! v, v) | v <- toList goals ]
+
+    infinity = 1 / 0
