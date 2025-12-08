@@ -7,6 +7,7 @@ import Data.List
 import Data.List.Extra
 import Data.Functor
 import Data.Map qualified as M
+import Data.Int
 
 import Dfs qualified
 import Bfs qualified
@@ -20,6 +21,8 @@ maze :: A.Array (Int, Int) Char
 maze = A.listArray ((0, 0), (h - 1, w - 1)) (concat mazeStr)
 
 (startIdx, _) = fromJust $ flip find (A.assocs maze) $ \(idx, c) -> c == 'S'
+
+(startX, startY) = startIdx
 
 shortestPath = flip Bfs.bfs startIdx $ \idx@(x, y) -> case maze A.! idx of
     'E' -> Bfs.Goal
@@ -36,14 +39,18 @@ minSaving = 100
 data Cheat = Uncheated | Cheating !Int | Cheated
     deriving (Show, Eq, Ord)
 
-cheatPaths = Dfs.dfsAll rule fst (startIdx, (Nothing, Nothing, Uncheated))
+data Coord = Coord !Int16 !Int16
+    deriving (Show, Eq, Ord)
+
+cheatPaths = Dfs.dfsAll rule fst (Coord (fromIntegral startX) (fromIntegral startY), (Nothing, Nothing, Uncheated))
   where
-    rule l (idx0@(x, y), cc@(s, e, c))
+    rule l (idx0@(Coord x y), cc@(s, e, c))
       | l > shortestLength - minSaving = Dfs.Adj []
-      | otherwise = case maze A.! idx0 of
+      | otherwise = case maze A.! (fromIntegral x, fromIntegral y) of
             'E' -> Dfs.Goal
             _ -> Dfs.Adj $ [(0, 1), (0, -1), (1, 0), (-1, 0)] >>= \(dx, dy) ->
-                let idx1 = (x + dx, y + dy)
+                let (x', y') = (x + dx, y + dy)
+                    idx1 = Coord x' y'
 
                     noCheat = case c of
                         Cheating n -> if n == 1 then
@@ -65,14 +72,14 @@ cheatPaths = Dfs.dfsAll rule fst (startIdx, (Nothing, Nothing, Uncheated))
                         Uncheated -> True
                         Cheated -> False
 
-                in case maze A.!? idx1 of
+                in case maze A.!? (fromIntegral x', fromIntegral y') of
                     Just '.' -> [(idx1, noCheat)]
                     Just 'E' -> [(idx1, endCheat)]
                     Just '#' -> if canCheat then [(idx1, yesCheat)] else []
                     _ -> []
 
 cheatPathSummaries = flip mapMaybe cheatPaths $ \(l, n) ->
-    let d = shortestLength - l in if d <= 0 then Nothing else 
+    let d = shortestLength - l in if d <= 0 then Nothing else
         case n of
             (_, (Just s, Just e, Cheated)) -> Just (d, s, e)
             _ -> Nothing
